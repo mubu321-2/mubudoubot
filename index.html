@@ -156,11 +156,12 @@
             { pattern: "あいふぉん", responses: ["iPhoneかー！"] }
         ];
 
+        // ボタンクリック時のイベントリスナー
         document.getElementById("send-button").addEventListener("click", function() {
             sendMessage();
         });
 
-        // Enterキーでも送信できるようにする
+        // Enterキーで送信できるようにする
         document.getElementById("user-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 sendMessage();
@@ -169,13 +170,18 @@
 
         function sendMessage() {
             const userInput = document.getElementById("user-input").value.trim();
-            if (userInput === "") return;
+            
+            // 入力が空でないか確認
+            if (userInput === "") {
+                return; // 入力が空なら何もせずリターン
+            }
 
-            addMessage(userInput, "user");
-            document.getElementById("user-input").value = "";
+            addMessage(userInput, "user"); // ユーザーのメッセージを追加
+            document.getElementById("user-input").value = ""; // 入力フィールドをクリア
 
+            // ボットの応答を取得
             const botResponse = getBotResponse(userInput);
-            setTimeout(() => addMessage(botResponse, "bot"), 500);
+            setTimeout(() => addMessage(botResponse, "bot"), 500); // 少し遅延をつけてボットの応答を追加
         }
 
         function addMessage(message, sender) {
@@ -184,7 +190,7 @@
             messageDiv.className = `message ${sender}`;
             messageDiv.textContent = message;
             chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            chatBox.scrollTop = chatBox.scrollHeight; // 常にチャットの一番下にスクロール
         }
 
         // ユーザー入力に対する適切な応答を返す関数
@@ -192,11 +198,11 @@
             let responses = [];
 
             // 入力が含まれているパターンを見つけて応答を集める
-            for (let entry of patterns) {
+            patterns.forEach(function(entry) {
                 if (userInput.includes(entry.pattern)) {
                     responses = responses.concat(entry.responses);
                 }
-            }
+            });
 
             if (responses.length > 0) {
                 // 複数の応答を組み合わせて返す
