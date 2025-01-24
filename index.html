@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チャットボット</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2f2f2f; /* ダークグレーの背景 */
+        }
+
+        .chat-container {
+            width: 400px;
+            background-color: #333; /* ダークグレー */
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #444; /* 少し明るいグレーでボーダー */
+            background-color: #444; /* 背景色を少し明るいグレー */
+        }
+
+        .chat-box .message {
+            margin-bottom: 15px;
+        }
+
+        .chat-box .message.bot {
+            color: #fff;
+            background-color: #6c757d; /* ボットのメッセージ: 中間のグレー */
+            padding: 10px;
+            border-radius: 10px;
+            text-align: left;
+            max-width: 80%;
+        }
+
+        .chat-box .message.user {
+            color: #fff;
+            background-color: #888; /* ユーザーのメッセージ: 少し明るめのグレー */
+            padding: 10px;
+            border-radius: 10px;
+            text-align: right;
+            max-width: 80%;
+            margin-left: auto;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #555; /* 入力エリアの背景色: ダークグレー */
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #666; /* 明るいグレーのボーダー */
+            border-radius: 5px;
+            background-color: #666; /* 入力フィールドの背景色 */
+            color: white;
+            outline: none;
+        }
+
+        #send-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #6c757d; /* グレーのボタン */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #5a6268; /* ボタンにホバーしたときの色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-box" class="chat-box"></div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="ここに入力..." />
+            <button id="send-button">送信</button>
+        </div>
+    </div>
+    <script>
+        // 応答パターンを格納するオブジェクト
+        const patterns = [
+            { pattern: "元気ですか？", responses: ["元気ですよー！", "元気だよー！", "元気でーす！"] },
+            { pattern: "こんにちは", responses: ["こんにちはー！", "こんにちは！", "こんにちわー"] },
+            { pattern: "名前は？", responses: ["むすぶチャンネルbotでーす！", "むすぶチャンネルbotです"] },
+            { pattern: "さようなら", responses: ["バーイ！", "バイバーイ！"] }
+            { pattern: "最近、", responses: ["そうなんだー", "そうなんだね！", "そうね！"] },
+            { pattern: "おい", responses: ["何？", "え？", "ん？"] },
+            { pattern: "ネルはかわいい", responses: ["うれしい！", "めちゃくちゃうれしいわー！"] },
+            { pattern: "るはかわいい", responses: ["ありがとう！", "え？ありがとー！", "え////"] },
+            { pattern: "tはかわいい", responses: ["ガチでうれしい！", "やったー！", "やったぜ！"] },
+            { pattern: "ネルは可愛い", responses: ["うれしい！", "めちゃくちゃうれしいわー！"] },
+            { pattern: "るは可愛い", responses: ["ありがとう！", "え？ありがとー！", "え////"] },
+            { pattern: "tは可愛い", responses: ["ガチでうれしい！", "やったー！", "やったぜ！"] }
+            { pattern: "ネルはカワイイね", responses: ["うれしい！", "めちゃくちゃうれしいわー！"] },
+            { pattern: "るはカワイイね", responses: ["ありがとう！", "え？ありがとー！", "え////"] },
+            { pattern: "tはカワイイね", responses: ["ガチでうれしい！", "やったー！", "やったぜ！"] }
+            { pattern: "カッコいい", responses: ["だねー", "だよねー"] },
+            { pattern: "かっこいい", responses: ["だよね！", "うん", "ね！"] },
+            { pattern: "カッコイイ", responses: ["だよね！", "そうだね", "そうだよ！"] }
+            { pattern: "死", responses: ["生きろ！", "え..."] },
+            { pattern: "殺", responses: ["殺...(つд⊂)ｴｰﾝ"] }
+            { pattern: "t殺す", responses: ["そんなこと言っても生きるからね！"] }
+            { pattern: "ネル殺す", responses: ["そんなこと言っても生きるからね！"] }
+            { pattern: "tころす", responses: ["そんなこと言っても生きるからね！"] }
+            { pattern: "ネルころす", responses: ["そんなこと言っても生きるからね！"] }
+            { pattern: "tコロス", responses: ["そんなこと言っても生きるからね！"] }
+            { pattern: "ネルコロス", responses: ["そんなこと言っても生きるからね！"] }
+            { pattern: "1+1", responses: ["10すね", "10だよ"] }
+            { pattern: "ル価値なし", responses: ["結論！価値しかない！"] }
+            { pattern: "t価値なし", responses: ["結論！価値しかない！"] }
+            { pattern: "〇", responses: ["丸の意味わかる気がする...."] }
+            { pattern: "お前", responses: ["お前って言ったな？", "お前って言わないで！"] }
+            { pattern: "お菓子", responses: ["お菓子食べたーい！"] }
+            { pattern: "学校", responses: ["僕は学校嫌い"] }
+            { pattern: "ブタ", responses: ["ブタかー"] }
+            { pattern: "ネルデブ", responses: ["むすぶチャンネルはデブではない！"] }
+            { pattern: "死にたい", responses: ["死なないで！たとえほかの人が大事としていなくても僕が大事としてるから！"] }
+            { pattern: "犯罪", responses: ["犯罪！？"] }
+            { pattern: "銃", responses: ["銃刀法違反！！！！！！！"] }
+            { pattern: "ふわふわ", responses: ["ふわふわ！だね！ブラザー！", "ね！"] }
+            { pattern: "フワフワ", responses: ["フワフワ！だね！！！！","フワフワ！！！"] }
+            { pattern: "豆知識", responses: ["ゾウってお鼻が長いんだよ！", "トッポは先までチョコ入ってるんだよ！"] }
+            { pattern: "宿題し", responses: ["しません！", "いやよ！"] }
+            { pattern: "勉強し", responses: ["しませんよ？", "いやだ！"] }
+            { pattern: "pc", responses: ["パソコン！"] }
+            { pattern: "スマホ", responses: ["switch！"] }
+            { pattern: "linux", responses: ["私が好きなosだ！"] }
+            { pattern: "機種なに", responses: ["たくさん持ってるからわからん！"] }
+            { pattern: "やった", responses: ["やったー！", "yatta!"] }
+            { pattern: "機種変更し", responses: ["そうなんだー！ところでなんのosが入ってる？"] }
+            { pattern: "android", responses: ["androidかー！"] }
+            { pattern: "アンドロイド", responses: ["アンドロイドかー！"] }
+            { pattern: "あんどろいど", responses: ["あんどろいどね！"] }
+            { pattern: "アイフォン", responses: ["アイフォンかー！"] }
+            { pattern: "iPhone", responses: ["iPhoneかー！"] }
+
+        ];
+
+        document.getElementById("send-button").addEventListener("click", function() {
+            const userInput = document.getElementById("user-input").value.trim();
+            if (userInput === "") return;
+
+            addMessage(userInput, "user");
+            document.getElementById("user-input").value = "";
+
+            const botResponse = getBotResponse(userInput);
+            setTimeout(() => addMessage(botResponse, "bot"), 500);
+        });
+
+        function addMessage(message, sender) {
+            const chatBox = document.getElementById("chat-box");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = message;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // ユーザー入力に対する適切な応答を返す関数
+        function getBotResponse(userInput) {
+            // パターンが完全に一致または含まれている場合に応答
+            for (let entry of patterns) {
+                // 入力がパターンを完全に含んでいるかチェック
+                if (userInput.includes(entry.pattern)) {
+                    // ランダムなレスポンスを返す
+                    const responses = entry.responses;
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    return randomResponse;
+                }
+            }
+            return "申し訳ありませんが、その質問にはお答えできません。";
+        }
+    </script>
+</body>
+</html>
