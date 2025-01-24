@@ -189,17 +189,21 @@
 
         // ユーザー入力に対する適切な応答を返す関数
         function getBotResponse(userInput) {
-            // パターンが完全に一致または含まれている場合に応答
+            let responses = [];
+            
+            // 入力が含まれているパターンを見つけて応答を集める
             for (let entry of patterns) {
-                // 入力がパターンを完全に含んでいるかチェック
                 if (userInput.includes(entry.pattern)) {
-                    // ランダムなレスポンスを返す
-                    const responses = entry.responses;
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    return randomResponse;
+                    responses = responses.concat(entry.responses);
                 }
             }
-            return "？？？？？？？？？？？？？？？？？？？？";
+            
+            if (responses.length > 0) {
+                // 複数の応答を組み合わせて返す
+                return responses.join(" ");
+            } else {
+                return "？";
+            }
         }
     </script>
 </body>
