@@ -190,19 +190,19 @@
         // ユーザー入力に対する適切な応答を返す関数
         function getBotResponse(userInput) {
             let responses = [];
-            
+
             // 入力が含まれているパターンを見つけて応答を集める
             for (let entry of patterns) {
                 if (userInput.includes(entry.pattern)) {
                     responses = responses.concat(entry.responses);
                 }
             }
-            
+
             if (responses.length > 0) {
                 // 複数の応答を組み合わせて返す
                 return responses.join(" ");
             } else {
-                return "？";
+                return "申し訳ありませんが、その質問にはお答えできません。";
             }
         }
     </script>
