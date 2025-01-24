@@ -157,6 +157,17 @@
         ];
 
         document.getElementById("send-button").addEventListener("click", function() {
+            sendMessage();
+        });
+
+        // Enterキーでも送信できるようにする
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
             const userInput = document.getElementById("user-input").value.trim();
             if (userInput === "") return;
 
@@ -165,7 +176,7 @@
 
             const botResponse = getBotResponse(userInput);
             setTimeout(() => addMessage(botResponse, "bot"), 500);
-        });
+        }
 
         function addMessage(message, sender) {
             const chatBox = document.getElementById("chat-box");
@@ -188,7 +199,7 @@
                     return randomResponse;
                 }
             }
-            return "申し訳ありませんが、その質問にはお答えできません。";
+            return "？？？？？？？？？？？？？？？？？？？？";
         }
     </script>
 </body>
