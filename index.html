@@ -181,7 +181,7 @@
 
             // ボットの応答を取得
             const botResponse = getBotResponse(userInput);
-            setTimeout(() => addMessage(botResponse, "bot"), 500); // 少し遅延をつけてボットの応答を追加
+            setTimeout(() => addMessage(botResponse, "bot"), 1000); // 少し遅延をつけてボットの応答を追加
         }
 
         function addMessage(message, sender) {
